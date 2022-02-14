@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using UnityEngine.UI;
 
 public enum MenuState { Open, Closed }
 
@@ -22,6 +22,7 @@ public class PlayerScript : NetworkBehaviour
   [SerializeField]
   GameObject minion;
   GameObject summonRing;
+  Slider slider;
 
   Camera playerCamera;
   Transform cameraTransform;
@@ -30,6 +31,7 @@ public class PlayerScript : NetworkBehaviour
 
   float cameraPitch = 0;
   float sprintSpeed = 2;
+  float lookSensitivity = 1;
 
   Vector2 movementAxis => moveAction.ReadValue<Vector2>();
   Vector2 lookAxis => lookAction.ReadValue<Vector2>();
@@ -41,6 +43,8 @@ public class PlayerScript : NetworkBehaviour
 
   public override void OnStartLocalPlayer()
   {
+    lookSensitivity = PlayerPrefs.GetFloat("sensitivity", 1);
+
     lookAction.Enable();
     menuAction.Enable();
     moveAction.Enable();
@@ -51,6 +55,19 @@ public class PlayerScript : NetworkBehaviour
     cameraTransform = transform.Find("Camera Transform");
     playerCamera = cameraTransform.Find("Camera").GetComponent<Camera>();
     summonRing = transform.Find("Summon Ring").gameObject;
+
+    #region UI
+
+    slider = canvas.transform.Find("Panel/Slider").GetComponent<Slider>();
+    slider.onValueChanged.AddListener((float value) =>
+    {
+      lookSensitivity = value;
+
+      PlayerPrefs.SetFloat("sensitivity", lookSensitivity);
+      PlayerPrefs.Save();
+    });
+
+    #endregion
 
     menuAction.performed += OnMenu;
     summonAction.performed += OnSummon;
@@ -66,6 +83,7 @@ public class PlayerScript : NetworkBehaviour
     if (!isLocalPlayer) return;
 
     HandleUpdateMovementAndAiming();
+
     summonRing.transform.rotation = Quaternion.identity;
   }
 
@@ -73,8 +91,10 @@ public class PlayerScript : NetworkBehaviour
 
   void HandleUpdateMovementAndAiming()
   {
-    var tempLookAxisX = lookAxisX;
-    var tempLookAxisY = lookAxisY;
+    if (menuState == MenuState.Open) return;
+
+    var tempLookAxisX = lookAxisX * lookSensitivity;
+    var tempLookAxisY = lookAxisY * lookSensitivity;
 
     var tempMovementAxisX = movementAxisX;
     var tempMovementAxisY = movementAxisY;
@@ -96,6 +116,8 @@ public class PlayerScript : NetworkBehaviour
   {
     menuState = MenuState.Open;
     Cursor.lockState = CursorLockMode.None;
+
+    slider.value = lookSensitivity;
 
     canvas.enabled = true;
   }
