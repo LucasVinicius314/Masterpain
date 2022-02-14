@@ -24,6 +24,7 @@ public class PlayerScript : NetworkBehaviour
   GameObject summonRing;
   Slider slider;
   Button closeButton;
+  Button quitButton;
 
   Camera playerCamera;
   Transform cameraTransform;
@@ -60,10 +61,16 @@ public class PlayerScript : NetworkBehaviour
 
     #region UI
 
-    closeButton = canvas.transform.Find("Button").GetComponent<Button>();
+    closeButton = canvas.transform.Find("Close Button").GetComponent<Button>();
     closeButton.onClick.AddListener(() =>
     {
       CloseMenu();
+    });
+
+    quitButton = canvas.transform.Find("Quit Button").GetComponent<Button>();
+    quitButton.onClick.AddListener(() =>
+    {
+      Application.Quit();
     });
 
     slider = canvas.transform.Find("Panel/Slider").GetComponent<Slider>();
