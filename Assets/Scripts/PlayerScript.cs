@@ -23,6 +23,7 @@ public class PlayerScript : NetworkBehaviour
   GameObject minion;
   GameObject summonRing;
   Slider slider;
+  Button closeButton;
 
   Camera playerCamera;
   Transform cameraTransform;
@@ -30,7 +31,8 @@ public class PlayerScript : NetworkBehaviour
   MenuState menuState = MenuState.Open;
 
   float cameraPitch = 0;
-  float sprintSpeed = 2;
+  float baseSpeed = 3;
+  float sprintSpeedMultiplier = 2;
   float lookSensitivity = 1;
 
   Vector2 movementAxis => moveAction.ReadValue<Vector2>();
@@ -57,6 +59,12 @@ public class PlayerScript : NetworkBehaviour
     summonRing = transform.Find("Summon Ring").gameObject;
 
     #region UI
+
+    closeButton = canvas.transform.Find("Button").GetComponent<Button>();
+    closeButton.onClick.AddListener(() =>
+    {
+      CloseMenu();
+    });
 
     slider = canvas.transform.Find("Panel/Slider").GetComponent<Slider>();
     slider.onValueChanged.AddListener((float value) =>
@@ -107,7 +115,7 @@ public class PlayerScript : NetworkBehaviour
 
     cameraTransform.transform.localEulerAngles = new Vector3(cameraPitch, 0, 0);
 
-    var moveSpeed = sprintSpeed * (isSprinting ? 2 : 1);
+    var moveSpeed = baseSpeed * (isSprinting ? sprintSpeedMultiplier : 1);
 
     characterController.Move((move * moveSpeed + Physics.gravity) * Time.deltaTime);
   }
