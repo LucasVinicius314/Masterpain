@@ -21,6 +21,7 @@ public class PlayerScript : NetworkBehaviour
   InputAction summonAction;
   [SerializeField]
   GameObject minion;
+  GameObject summonRing;
 
   Camera playerCamera;
   Transform cameraTransform;
@@ -32,7 +33,7 @@ public class PlayerScript : NetworkBehaviour
 
   Vector2 movementAxis => moveAction.ReadValue<Vector2>();
   Vector2 lookAxis => lookAction.ReadValue<Vector2>();
-  bool isSprinting => sprintAction.ReadValue<bool>();
+  bool isSprinting => sprintAction.ReadValue<float>() > 0;
   float lookAxisX => lookAxis.x;
   float lookAxisY => lookAxis.y;
   float movementAxisX => movementAxis.x;
@@ -49,6 +50,7 @@ public class PlayerScript : NetworkBehaviour
     characterController = GetComponent<CharacterController>();
     cameraTransform = transform.Find("Camera Transform");
     playerCamera = cameraTransform.Find("Camera").GetComponent<Camera>();
+    summonRing = transform.Find("Summon Ring").gameObject;
 
     menuAction.performed += OnMenu;
     summonAction.performed += OnSummon;
@@ -64,6 +66,7 @@ public class PlayerScript : NetworkBehaviour
     if (!isLocalPlayer) return;
 
     HandleUpdateMovementAndAiming();
+    summonRing.transform.rotation = Quaternion.identity;
   }
 
   void FixedUpdate() { }
@@ -115,8 +118,10 @@ public class PlayerScript : NetworkBehaviour
 
   void OnSummon(InputAction.CallbackContext context)
   {
+    var target = GameObject.Instantiate(new GameObject(), Vector3.forward, Quaternion.identity, summonRing.transform);
     var summon = GameObject.Instantiate(minion);
     summon.GetComponent<MinionScript>().SetOwner(gameObject);
+    summon.transform.SetParent(target.transform, false);
   }
 }
 
