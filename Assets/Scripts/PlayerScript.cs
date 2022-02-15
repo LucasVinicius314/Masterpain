@@ -1,4 +1,5 @@
 using Mirror;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -7,6 +8,8 @@ public enum MenuState { Open, Closed }
 
 public class PlayerScript : NetworkBehaviour
 {
+  #region Input
+
   [SerializeField]
   InputAction moveAction;
   [SerializeField]
@@ -16,16 +19,24 @@ public class PlayerScript : NetworkBehaviour
   [SerializeField]
   InputAction menuAction;
   [SerializeField]
-  Canvas canvas;
-  [SerializeField]
   InputAction summonAction;
+
+  #endregion
+
+  #region UI
+
   [SerializeField]
-  GameObject minion;
-  GameObject summonRing;
+  Canvas canvas;
   Slider slider;
   Button closeButton;
   Button quitButton;
+  Dropdown dropdown;
 
+  #endregion
+
+  [SerializeField]
+  GameObject minion;
+  GameObject summonRing;
   Camera playerCamera;
   Transform cameraTransform;
   CharacterController characterController;
@@ -36,6 +47,8 @@ public class PlayerScript : NetworkBehaviour
   float sprintSpeedMultiplier = 2;
   float lookSensitivity = 1;
 
+  #region Getters
+
   Vector2 movementAxis => moveAction.ReadValue<Vector2>();
   Vector2 lookAxis => lookAction.ReadValue<Vector2>();
   bool isSprinting => sprintAction.ReadValue<float>() > 0;
@@ -43,6 +56,8 @@ public class PlayerScript : NetworkBehaviour
   float lookAxisY => lookAxis.y;
   float movementAxisX => movementAxis.x;
   float movementAxisY => movementAxis.y;
+
+  #endregion
 
   public override void OnStartLocalPlayer()
   {
@@ -82,13 +97,25 @@ public class PlayerScript : NetworkBehaviour
       PlayerPrefs.Save();
     });
 
+    var resolutions = Screen.resolutions;
+
+    dropdown = canvas.transform.Find("Panel/Dropdown").GetComponent<Dropdown>();
+    dropdown.options.AddRange(resolutions.Select(i => new Dropdown.OptionData { text = i.ToString() }));
+    dropdown.onValueChanged.AddListener((int value) =>
+    {
+      var resolution = resolutions.ElementAt(value);
+
+      Screen.SetResolution(resolution.width, resolution.height, FullScreenMode.Windowed, 0);
+    });
+
     #endregion
 
     menuAction.performed += OnMenu;
     summonAction.performed += OnSummon;
 
-    Cursor.lockState = CursorLockMode.Locked;
     playerCamera.enabled = true;
+
+    CloseMenu();
 
     base.OnStartLocalPlayer();
   }
