@@ -37,10 +37,12 @@ public class PlayerScript : NetworkBehaviour
   [SerializeField]
   GameObject minion;
   GameObject summonRing;
+  GameObject model;
   Camera playerCamera;
   Transform cameraTransform;
   CharacterController characterController;
   MenuState menuState = MenuState.Open;
+  Quaternion targetModelRotation = Quaternion.identity;
 
   float cameraPitch = 0;
   float baseSpeed = 3;
@@ -73,6 +75,7 @@ public class PlayerScript : NetworkBehaviour
     cameraTransform = transform.Find("Camera Transform");
     playerCamera = cameraTransform.Find("Camera").GetComponent<Camera>();
     summonRing = transform.Find("Summon Ring").gameObject;
+    model = transform.Find("Model").gameObject;
 
     #region UI
 
@@ -142,6 +145,19 @@ public class PlayerScript : NetworkBehaviour
     var tempMovementAxisY = movementAxisY;
 
     var move = Vector3.ClampMagnitude(tempMovementAxisY * transform.forward + tempMovementAxisX * transform.right, 1);
+
+    #region Model orientation
+
+    if (move.magnitude > 0)
+    {
+      var targetRotation = Quaternion.LookRotation(move, Vector3.up);
+
+      targetModelRotation = Quaternion.Lerp(targetModelRotation, targetRotation, .1f);
+    }
+
+    model.transform.rotation = targetModelRotation;
+
+    #endregion
 
     transform.Rotate(Vector3.up * tempLookAxisX);
 
