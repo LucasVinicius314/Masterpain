@@ -130,6 +130,8 @@ public class PlayerScript : NetworkBehaviour
     HandleUpdateMovementAndAiming();
 
     summonRing.transform.rotation = Quaternion.identity;
+
+    // summonRing
   }
 
   void FixedUpdate() { }
