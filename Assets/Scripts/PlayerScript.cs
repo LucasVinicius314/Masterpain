@@ -1,4 +1,5 @@
 using Mirror;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -43,6 +44,8 @@ public class PlayerScript : NetworkBehaviour
   CharacterController characterController;
   MenuState menuState = MenuState.Open;
   Quaternion targetModelRotation = Quaternion.identity;
+  float summonRingYRotation = 0;
+  List<GameObject> targets = new List<GameObject>();
 
   float cameraPitch = 0;
   float baseSpeed = 3;
@@ -129,9 +132,22 @@ public class PlayerScript : NetworkBehaviour
 
     HandleUpdateMovementAndAiming();
 
-    summonRing.transform.rotation = Quaternion.identity;
+    summonRing.transform.rotation = Quaternion.Euler(Vector3.up * summonRingYRotation);
 
-    // summonRing
+    // 180 means it's 180 degrees per second
+    //  90 means it's  90 degrees per second
+    //  45 means it's  45 degrees per second
+    summonRingYRotation += (45 * Time.deltaTime) % 360;
+
+    #region Experimental
+
+    Debug.DrawRay(summonRing.transform.position, summonRing.transform.forward * 10);
+
+    var expansion = Vector3.one * Mathf.Sin(((Time.frameCount / 5) % 360) * Mathf.Deg2Rad) * .5f;
+
+    summonRing.transform.localScale = Vector3.one * 2 + expansion;
+
+    #endregion
   }
 
   void FixedUpdate() { }
@@ -154,7 +170,7 @@ public class PlayerScript : NetworkBehaviour
     {
       var targetRotation = Quaternion.LookRotation(move, Vector3.up);
 
-      targetModelRotation = Quaternion.Lerp(targetModelRotation, targetRotation, .1f);
+      targetModelRotation = Quaternion.Lerp(targetModelRotation, targetRotation, 10 * Time.deltaTime);
     }
 
     model.transform.rotation = targetModelRotation;
@@ -200,10 +216,35 @@ public class PlayerScript : NetworkBehaviour
 
   void OnSummon(InputAction.CallbackContext context)
   {
-    var target = GameObject.Instantiate(new GameObject(), Vector3.forward, Quaternion.identity, summonRing.transform);
+    var target = GameObject.Instantiate(new GameObject(), Vector3.zero, Quaternion.identity, summonRing.transform);
     var summon = GameObject.Instantiate(minion);
+
     summon.GetComponent<MinionScript>().SetOwner(gameObject);
-    summon.transform.SetParent(target.transform, false);
+    summon.GetComponent<MinionScript>().SetTarget(target.transform);
+
+    target.AddComponent<TargetScript>();
+
+    targets.Add(target);
+
+    UpdateTargetLayout();
+  }
+
+  void UpdateTargetLayout()
+  {
+    var count = targets.Count;
+
+    if (count == 0) return;
+
+    var step = 360 / count;
+
+    int index = 0;
+
+    foreach (var target in targets)
+    {
+      target.transform.localPosition = Quaternion.Euler(0, index * step, 0) * Vector3.forward * 1.5f;
+
+      index++;
+    }
   }
 }
 

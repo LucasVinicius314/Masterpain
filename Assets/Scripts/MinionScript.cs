@@ -1,39 +1,34 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MinionScript : MonoBehaviour
 {
+  Transform target;
+  GameObject owner;
 
-    Transform target;
-    GameObject owner;
-    bool onPlayer = false;
+  void Update()
+  {
+    var distanceToTarget = (transform.position - target.position).magnitude;
 
-    // Start is called before the first frame update
-    void Start()
+    if (distanceToTarget > 1.4 && distanceToTarget <= 1.5)
     {
-
+      // maybe
+      // transform.LookAt(owner.transform);
+    }
+    else
+    {
+      transform.LookAt(target);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (!onPlayer)
-        {
-            transform.LookAt(owner.transform);
-        }
-        if ((transform.position - owner.transform.position).magnitude > 1.5f)
-        {
-            transform.Translate(Vector3.forward * 10 * Time.deltaTime);
-        }
-        else
-        {
-            transform.RotateAround(owner.transform.position, Vector3.up, 100 * Time.deltaTime);
-        }
-    }
+    transform.position = Vector3.Lerp(transform.position, target.position, 10 * Time.deltaTime);
+  }
 
-    public void SetOwner(GameObject player)
-    {
-        owner = player;
-    }
+  public void SetOwner(GameObject player)
+  {
+    owner = player;
+  }
+
+  public void SetTarget(Transform targetTransform)
+  {
+    target = targetTransform;
+  }
 }
