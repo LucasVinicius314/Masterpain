@@ -1,25 +1,48 @@
+using Mirror;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class MinionScript : MonoBehaviour
+public class MinionScript : NetworkBehaviour
 {
+  Rigidbody rb;
   Transform target;
   GameObject owner;
+  List<GameObject> aggro = new List<GameObject>();
+
+  void Start()
+  {
+    rb = GetComponent<Rigidbody>();
+  }
 
   void Update()
   {
-    var distanceToTarget = (transform.position - target.position).magnitude;
-
-    if (distanceToTarget > 1.4 && distanceToTarget <= 1.5)
+    if (aggro.Count == 0)
     {
-      // maybe
-      // transform.LookAt(owner.transform);
+      rb.velocity = Vector3.zero;
+      rb.angularVelocity = Vector3.zero;
+
+      var distanceToTarget = (transform.position - target.position).magnitude;
+
+      transform.LookAt(target);
+
+      transform.position = Vector3.Lerp(transform.position, target.position, 10 * Time.deltaTime);
     }
     else
     {
-      transform.LookAt(target);
-    }
+      var enemyTarget = aggro[0];
 
-    transform.position = Vector3.Lerp(transform.position, target.position, 10 * Time.deltaTime);
+      var direction = (enemyTarget.transform.position + Vector3.up) - transform.position;
+
+      direction.Normalize();
+
+      var rotationAmount = Vector3.Cross(transform.forward, direction);
+
+      rb.angularVelocity = rotationAmount * 1000 * 3 * 3 * Time.deltaTime;
+
+      rb.velocity = transform.forward * 1000 * 3 * Time.deltaTime;
+
+      Debug.DrawLine(transform.position, enemyTarget.transform.position, Color.red);
+    }
   }
 
   public void SetOwner(GameObject player)
@@ -30,5 +53,10 @@ public class MinionScript : MonoBehaviour
   public void SetTarget(Transform targetTransform)
   {
     target = targetTransform;
+  }
+
+  public void SetAggro(List<GameObject> aggroParam)
+  {
+    aggro = aggroParam;
   }
 }

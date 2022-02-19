@@ -14,7 +14,7 @@ public class EnemyScript : MonoBehaviour
 
   #region Stats
 
-  float maxHealthPoints = 200;
+  float maxHealthPoints = 200000;
   float healthPoints = 0;
 
   #endregion
@@ -38,6 +38,9 @@ public class EnemyScript : MonoBehaviour
 
   void OnDestroy()
   {
+    if (target != null)
+      target.GetComponent<PlayerScript>().RemoveAggro(gameObject);
+
     StopAllCoroutines();
   }
 
@@ -59,7 +62,15 @@ public class EnemyScript : MonoBehaviour
 
   void CalculateTarget()
   {
-    target = GameObject.FindGameObjectWithTag("Player")?.transform;
+    var player = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+    if (player == null) return;
+
+    var playerScript = player.GetComponent<PlayerScript>();
+
+    playerScript.AddAggro(gameObject);
+
+    target = player;
   }
 
   IEnumerator SetTargetRoutine()
@@ -70,5 +81,24 @@ public class EnemyScript : MonoBehaviour
 
       yield return new WaitForSeconds(2);
     }
+  }
+
+  void OnTriggerEnter(Collider other)
+  {
+    TakeDamage(40);
+  }
+
+  void TakeDamage(float value)
+  {
+    healthPoints -= value;
+
+    if (healthPoints <= 0)
+    {
+      Destroy(gameObject);
+
+      return;
+    }
+
+    UpdateHealthBar();
   }
 }

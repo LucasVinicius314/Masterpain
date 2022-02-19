@@ -1706,8 +1706,26 @@ MonoBehaviour:
       m_Action: Summon
       m_Flags: 0
     m_Flags: 0
+  enemyAction:
+    m_Name: Enemy
+    m_Type: 1
+    m_ExpectedControlType: Button
+    m_Id: 0d3b1f97-bd8e-43e9-8ef9-96fa4c9397a5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 2a7e79ac-fe3d-4827-9e9e-f0d981f19a03
+      m_Path: <Keyboard>/f
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Enemy
+      m_Flags: 0
+    m_Flags: 0
   canvas: {fileID: 1292512235646407383}
   minion: {fileID: 4991177080134378990, guid: 985e94dd43d900f428ada2caf7e46ccb, type: 3}
+  enemy: {fileID: 1700319697720612617, guid: ccc06570ee1e5534fb44d3b7343d37bb, type: 3}
 --- !u!143 &720429269614147707
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2209,6 +2227,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8429512939620384944}
+  - component: {fileID: 3810729074187476802}
   m_Layer: 0
   m_Name: Summon Ring
   m_TagString: Untagged
@@ -2230,6 +2249,23 @@ Transform:
   m_Father: {fileID: 3751320190848361912}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3810729074187476802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6146860799816272983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  serverOnly: 0
+  visible: 0
+  m_AssetId: 8af89a3568b33684886f895c186fc083
+  hasSpawned: 0
 --- !u!1 &6951925059870542460
 GameObject:
   m_ObjectHideFlags: 0

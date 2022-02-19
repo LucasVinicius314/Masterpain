@@ -42,9 +42,10 @@ GameObject:
   - component: {fileID: 5300937403455415459}
   - component: {fileID: 4805919486022650551}
   - component: {fileID: 3587874151653842812}
+  - component: {fileID: 1187838029689771596}
   m_Layer: 0
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -99,6 +100,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a88a75ee661814459a07ccfb2938a1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!136 &1187838029689771596
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700319697720612617}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1.07
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.56, z: 0}
 --- !u!1 &3028261816948899673
 GameObject:
   m_ObjectHideFlags: 0
@@ -395,7 +410,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2741140372498065832, guid: d11a92f69a05e8245b345af6ae316207, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: d11a92f69a05e8245b345af6ae316207, type: 3}
 --- !u!4 &5159783992110791520 stripped
 Transform:

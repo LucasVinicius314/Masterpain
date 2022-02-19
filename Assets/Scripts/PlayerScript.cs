@@ -7,6 +7,13 @@ using UnityEngine.UI;
 
 public enum MenuState { Open, Closed }
 
+class Minion
+{
+  public GameObject target;
+  public GameObject summon;
+  public MinionScript script;
+}
+
 public class PlayerScript : NetworkBehaviour
 {
   #region Input
@@ -21,6 +28,8 @@ public class PlayerScript : NetworkBehaviour
   InputAction menuAction;
   [SerializeField]
   InputAction summonAction;
+  [SerializeField]
+  InputAction enemyAction;
 
   #endregion
 
@@ -37,6 +46,8 @@ public class PlayerScript : NetworkBehaviour
 
   [SerializeField]
   GameObject minion;
+  [SerializeField]
+  GameObject enemy;
   GameObject summonRing;
   GameObject model;
   Camera playerCamera;
@@ -45,7 +56,8 @@ public class PlayerScript : NetworkBehaviour
   MenuState menuState = MenuState.Open;
   Quaternion targetModelRotation = Quaternion.identity;
   float summonRingYRotation = 0;
-  List<GameObject> targets = new List<GameObject>();
+  List<Minion> minions = new List<Minion>();
+  List<GameObject> aggro = new List<GameObject>();
 
   float cameraPitch = 0;
   float baseSpeed = 3;
@@ -73,6 +85,7 @@ public class PlayerScript : NetworkBehaviour
     moveAction.Enable();
     summonAction.Enable();
     sprintAction.Enable();
+    enemyAction.Enable();
 
     characterController = GetComponent<CharacterController>();
     cameraTransform = transform.Find("Camera Transform");
@@ -118,6 +131,7 @@ public class PlayerScript : NetworkBehaviour
 
     menuAction.performed += OnMenu;
     summonAction.performed += OnSummon;
+    enemyAction.performed += OnEnemy;
 
     playerCamera.enabled = true;
 
@@ -232,24 +246,39 @@ public class PlayerScript : NetworkBehaviour
     Summon();
   }
 
+  void OnEnemy(InputAction.CallbackContext context)
+  {
+    Enemy();
+  }
+
   void Summon()
   {
     var target = GameObject.Instantiate(new GameObject(), Vector3.zero, Quaternion.identity, summonRing.transform);
     var summon = GameObject.Instantiate(minion);
+    var script = summon.GetComponent<MinionScript>();
 
-    summon.GetComponent<MinionScript>().SetOwner(gameObject);
-    summon.GetComponent<MinionScript>().SetTarget(target.transform);
+    script.SetOwner(gameObject);
+    script.SetTarget(target.transform);
+    script.SetAggro(aggro);
 
     target.AddComponent<TargetScript>();
 
-    targets.Add(target);
+    var tempMinion = new Minion { script = script, summon = summon, target = target };
+
+    minions.Add(tempMinion);
 
     UpdateTargetLayout();
   }
 
+  void Enemy()
+  {
+    var rand = Random.insideUnitCircle;
+    var temp = GameObject.Instantiate(enemy, new Vector3(rand.x, 0, rand.y) * 10, Quaternion.identity);
+  }
+
   void UpdateTargetLayout()
   {
-    var count = targets.Count;
+    var count = minions.Count;
 
     if (count == 0) return;
 
@@ -257,9 +286,9 @@ public class PlayerScript : NetworkBehaviour
 
     int index = 0;
 
-    foreach (var target in targets)
+    foreach (var tempMinion in minions)
     {
-      target.transform.localPosition = Quaternion.Euler(0, index * step, 0) * Vector3.forward * 1.5f;
+      tempMinion.target.transform.localPosition = Quaternion.Euler(0, index * step, 0) * Vector3.forward * 1.5f;
 
       index++;
     }
@@ -267,9 +296,32 @@ public class PlayerScript : NetworkBehaviour
 
   void OnGUI()
   {
-    var count = targets.Count;
+    var count = minions.Count;
 
     GUI.Label(new Rect(8, 0, 200, 200), $"{count} minions active");
+  }
+
+  public void AddAggro(GameObject go)
+  {
+    if (!aggro.Contains(go))
+    {
+      aggro.Add(go);
+
+      UpdateAggro();
+    }
+  }
+
+  public void RemoveAggro(GameObject go)
+  {
+    aggro.Remove(go);
+
+    UpdateAggro();
+  }
+
+  void UpdateAggro()
+  {
+    foreach (var tempMinion in minions)
+      tempMinion.script.SetAggro(aggro);
   }
 }
 
