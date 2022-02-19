@@ -186,6 +186,19 @@ public class PlayerScript : NetworkBehaviour
     var moveSpeed = baseSpeed * (isSprinting ? sprintSpeedMultiplier : 1);
 
     characterController.Move((move * moveSpeed + Physics.gravity) * Time.deltaTime);
+
+    #region Experimental
+
+#if false
+
+    if (summonAction.IsPressed())
+    {
+      Summon();
+    }
+
+#endif
+
+    #endregion
   }
 
   void OpenMenu()
@@ -216,6 +229,11 @@ public class PlayerScript : NetworkBehaviour
 
   void OnSummon(InputAction.CallbackContext context)
   {
+    Summon();
+  }
+
+  void Summon()
+  {
     var target = GameObject.Instantiate(new GameObject(), Vector3.zero, Quaternion.identity, summonRing.transform);
     var summon = GameObject.Instantiate(minion);
 
@@ -235,7 +253,7 @@ public class PlayerScript : NetworkBehaviour
 
     if (count == 0) return;
 
-    var step = 360 / count;
+    var step = 360f / count;
 
     int index = 0;
 
@@ -245,6 +263,13 @@ public class PlayerScript : NetworkBehaviour
 
       index++;
     }
+  }
+
+  void OnGUI()
+  {
+    var count = targets.Count;
+
+    GUI.Label(new Rect(8, 0, 200, 200), $"{count} minions active");
   }
 }
 
