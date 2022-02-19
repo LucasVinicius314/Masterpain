@@ -14,7 +14,7 @@ public class EnemyScript : MonoBehaviour
 
   #region Stats
 
-  float maxHealthPoints = 200000;
+  float maxHealthPoints = 2000;
   float healthPoints = 0;
 
   #endregion
